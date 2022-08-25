@@ -1,11 +1,19 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useState } from "react";
+import { CharacterFilter } from "rickmortyapi/dist/interfaces";
 import CharacterCard from "../components/CharacterCard";
+import Paginate from "../components/Paginate";
 import RandomCharacter from "../components/RandomCharacter";
 import useCharacters from "../hooks/useCharacters";
 
 const Home: NextPage = () => {
-  const { characters } = useCharacters();
+  const [filter, setFilter] = useState<CharacterFilter>();
+  const { characters, totalPages, currentPage } = useCharacters(filter);
+
+  const changePage = (page: number) => {
+    setFilter((v) => ({ ...v, page }));
+  };
 
   return (
     <div>
@@ -26,16 +34,32 @@ const Home: NextPage = () => {
         <div className="characters__box container">
           {characters &&
             characters.map((i) => <CharacterCard character={i} key={i.id} />)}
+          <div className="paginate">
+            <Paginate
+              OnChange={changePage}
+              totalPages={totalPages}
+              currentPage={currentPage}
+            />
+          </div>
         </div>
         <style jsx>{`
           .characters {
             margin-top: 1rem;
           }
 
+          .paginate {
+            margin: 0 auto;
+            max-width: 100%;
+            width: 100%;
+          }
+
           @media (min-width: 500px) {
             .characters__box {
               display: grid;
               grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            }
+            .paginate {
+              grid-column: 1/-1;
             }
           }
         `}</style>
